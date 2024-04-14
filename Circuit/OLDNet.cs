@@ -290,6 +290,11 @@ namespace Circuit
         /// <param name="arcNode">边结点</param>
         protected void InsertArcNode(ArcNode<TArcValue> arcNode)
         {
+            //把关系清零
+            arcNode.NextHLink = null;
+            arcNode.NextTLink = null;
+            arcNode.LastTLink = null;
+            arcNode.LastHLink = null;
             arcNode.Id = ArcIdPool;
             //头插入tVex邻接表
             if (_id2Vex[arcNode.TailVexId].FirstOut != null)
