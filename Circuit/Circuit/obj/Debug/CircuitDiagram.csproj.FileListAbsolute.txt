@@ -1,0 +1,12 @@
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\bin\Debug\CircuitDiagram.exe.config
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\bin\Debug\CircuitDiagram.exe
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\bin\Debug\CircuitDiagram.pdb
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\bin\Debug\MathNet.Numerics.dll
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\bin\Debug\System.ValueTuple.dll
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\bin\Debug\MathNet.Numerics.xml
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\bin\Debug\System.ValueTuple.xml
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\obj\Debug\CircuitDiagram.csproj.AssemblyReference.cache
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\obj\Debug\CircuitDiagram.csproj.CoreCompileInputs.cache
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\obj\Debug\CircuitDiagram.csproj.CopyComplete
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\obj\Debug\CircuitDiagram.exe
+J:\C#ProjectDir\CircuitDiagram\CircuitDiagram\obj\Debug\CircuitDiagram.pdb
