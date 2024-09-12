@@ -9,9 +9,12 @@ This is a class for solving resistive DC circuits
 仅用于初中阶段的直流电路求解，一般只有电源，电阻，电压表，电流表，导线。
 
 #示例
-下面是一个需要求接的电路
+
+下面是一个需要求解的电路
 ![image](https://github.com/luo2077/Circuit/blob/main/img/eg_circuit.png)
+
 在代码中构造一个电路类，插入所有支路，包括支路的已知属性(电阻，电动势)
 ![image](https://github.com/luo2077/Circuit/blob/main/img/main.png)
+
 运行程序，在控制台就能看见求解结果
 ![image](https://github.com/luo2077/Circuit/blob/main/img/output.png)
