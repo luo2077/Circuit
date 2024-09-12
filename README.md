@@ -10,7 +10,7 @@ This is a class for solving resistive DC circuits
 
 #示例
 下面是一个需要求接的电路
-![image](https://github.com/luo2077/Circuit/tree/main/img/eg_circuit.png)
+![image](https://github.com/luo2077/Circuit/blob/main/img/eg_circuit.png)
 在代码中构造一个电路类，插入所有支路，包括支路的已知属性(电阻，电动势)
 ![image](https://github.com/luo2077/Circuit/tree/main/img/main.png)
 运行程序，在控制台就能看见求解结果
