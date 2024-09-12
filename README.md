@@ -6,3 +6,5 @@
 
 # 适用范围：
 仅用于初中阶段的直流电路求解，一般只有电源，电阻，电压表，电流表，导线。
+
+![image](https://github.com/luo2077/Circuit/edit/main/eg_circuit.png)
