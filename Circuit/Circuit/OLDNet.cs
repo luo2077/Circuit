@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +18,37 @@ namespace Circuit
         internal Dictionary<int, ArcNode<TArcValue>> _id2Arc;
         //点的访问表
         internal bool[] _isVisited;
+
+        // 索引映射缓存
+        private readonly Dictionary<int, int> _vexId2Index = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> _arcId2Index = new Dictionary<int, int>();
+        private readonly List<int> _vexIndex2Id = new List<int>();
+        private bool _indexCacheValid = false;
+
+        protected void InvalidateIndexCache()
+        {
+            _indexCacheValid = false;
+        }
+
+        private void EnsureIndexCache()
+        {
+            if (_indexCacheValid) return;
+            _vexId2Index.Clear();
+            _vexIndex2Id.Clear();
+            int vIdx = 0;
+            foreach (var kvp in _id2Vex)
+            {
+                _vexId2Index[kvp.Key] = vIdx++;
+                _vexIndex2Id.Add(kvp.Key);
+            }
+            _arcId2Index.Clear();
+            int aIdx = 0;
+            foreach (var kvp in _id2Arc)
+            {
+                _arcId2Index[kvp.Key] = aIdx++;
+            }
+            _indexCacheValid = true;
+        }
 
         //顶点数量最大值
         internal int _maxVexNum = 0;
@@ -103,6 +134,7 @@ namespace Circuit
         protected void InsertVex(int index, TVexValue data)
         {
             _id2Vex.Add(index, new VexNode<TVexValue, TArcValue>() { Value = data, ID = index });
+            InvalidateIndexCache();
         }
 
         /// <summary>
@@ -124,6 +156,7 @@ namespace Circuit
             }
             //删除点
             _id2Vex.Remove(vexId);
+            InvalidateIndexCache();
         }
 
         /// <summary>
@@ -274,6 +307,7 @@ namespace Circuit
 
             //更新边列表
             _id2Arc.Add(arc.Id, arc);
+            InvalidateIndexCache();
         }
 
         /// <summary>
@@ -307,6 +341,7 @@ namespace Circuit
 
             //更新边列表
             _id2Arc.Add(arcNode.Id, arcNode);
+            InvalidateIndexCache();
         }
 
         /// <summary>
@@ -345,6 +380,7 @@ namespace Circuit
 
             //更新边列表
             _id2Arc.Add(arc.Id, arc);
+            InvalidateIndexCache();
         }
 
         /// <summary>
@@ -424,6 +460,7 @@ namespace Circuit
 
                 //更新边列表
                 _id2Arc.Remove(arc.Id);
+                InvalidateIndexCache();
             }
 
 
@@ -672,14 +709,8 @@ namespace Circuit
         /// <returns></returns>
         protected int GetVexIndexById(int id)
         {
-            int i = 0;
-            foreach (var vex in _id2Vex.Keys)
-            {
-                if (vex == id)
-                    return i;
-                i++;
-            }
-            return -1;
+            EnsureIndexCache();
+            return _vexId2Index.TryGetValue(id, out int idx) ? idx : -1;
         }
 
         /// <summary>
@@ -689,14 +720,8 @@ namespace Circuit
         /// <returns></returns>
         protected int GetArcIndexById(int id)
         {
-            int i = 0;
-            foreach (var vex in _id2Arc.Keys)
-            {
-                if (vex == id)
-                    return i;
-                i++;
-            }
-            return -1;
+            EnsureIndexCache();
+            return _arcId2Index.TryGetValue(id, out int idx) ? idx : -1;
         }
 
         /// <summary>
@@ -706,12 +731,9 @@ namespace Circuit
         /// <returns></returns>
         protected int GetVexIdByIndex(int index)
         {
-            int i = 0;
-            foreach (var item in _id2Vex.Keys)
-            {
-                if (i == index) return item;
-                i++;
-            }
+            EnsureIndexCache();
+            if (index >= 0 && index < _vexIndex2Id.Count)
+                return _vexIndex2Id[index];
             return -1;
         }
 

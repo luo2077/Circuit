@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Circuit
 {
@@ -21,8 +21,6 @@ namespace Circuit
 
             //print the result
             c.Print();
-
-            Console.ReadKey();
         }
     }
 }

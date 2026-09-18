@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Circuit
@@ -51,22 +51,30 @@ namespace Circuit
             {
                 res.Add(new List<ArcNode<Branch>>());
             }
-            int j = 0;
-            //遍历所有连通图组的点
-            foreach (List<int> vexIds in vexId)
+
+            // 建立点到连通分组的快速映射
+            Dictionary<int, int> vexToGroup = new Dictionary<int, int>();
+            for (int i = 0; i < vexId.Count; i++)
             {
-                //遍历这一组所有点
-                foreach (int id in vexIds)
+                foreach (int vid in vexId[i])
                 {
-                    //找与这个点有关的所有边，还没有加入边集的加入
-                    foreach (var arc in _arcs)
-                    {
-                        if ((arc.TailVexId == id || arc.HeadVexId == id) && !res[j].Contains(arc))
-                            res[j].Add(arc);
-                    }
+                    vexToGroup[vid] = i;
                 }
-                j++;
             }
+
+            // 直接按边的端点分配到对应的连通分组，O(B) 完成
+            foreach (var arc in _arcs)
+            {
+                if (vexToGroup.TryGetValue(arc.TailVexId, out int groupIdx))
+                {
+                    res[groupIdx].Add(arc);
+                }
+                else if (vexToGroup.TryGetValue(arc.HeadVexId, out groupIdx))
+                {
+                    res[groupIdx].Add(arc);
+                }
+            }
+
             return res;
         }
 

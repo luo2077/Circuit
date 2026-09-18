@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
@@ -33,26 +33,25 @@ namespace Circuit
         /// <returns></returns>
         private Matrix<double> GetMatrixA()
         {
-            //每个点都看做节点
-            //行数为节点数，列数为支路数
-            Matrix<double> matrix_A = Matrix.Build.Dense(_id2Vex.Count, _id2Arc.Count);
+            // 每个点都看做节点，行数为节点数-1（留下n-1行独立kcl方程），列数为支路数
+            int vexCount = _id2Vex.Count;
+            int arcCount = _id2Arc.Count;
+            Matrix<double> res = Matrix.Build.Dense(vexCount - 1, arcCount);
+
             foreach (var arc in _id2Arc.Values)
             {
-                foreach (var vex in _id2Vex.Values)
+                int arcIdx = GetArcIndexById(arc.Id);
+                int tailIdx = GetVexIndexById(arc.TailVexId);
+                int headIdx = GetVexIndexById(arc.HeadVexId);
+
+                // 只有属于前 vexCount - 1 行的独立节点才填入关联值
+                if (tailIdx >= 0 && tailIdx < vexCount - 1)
                 {
-                    if (arc.TailVexId != vex.ID && arc.HeadVexId != vex.ID)
-                        matrix_A[GetVexIndexById(vex.ID), GetArcIndexById(arc.Id)] = 0;
-                    else
-                        matrix_A[GetVexIndexById(vex.ID), GetArcIndexById(arc.Id)] = arc.TailVexId == vex.ID ? 1 : -1;
+                    res[tailIdx, arcIdx] = 1.0;
                 }
-            }
-            //留下n - 1行独立kcl的方程
-            Matrix<double> res = Matrix.Build.Dense(_id2Vex.Count - 1, _id2Arc.Count);
-            for (int r = 0; r < res.RowCount; r++)
-            {
-                for (int c = 0; c < res.ColumnCount; c++)
+                if (headIdx >= 0 && headIdx < vexCount - 1)
                 {
-                    res[r, c] = matrix_A[r, c];
+                    res[headIdx, arcIdx] = -1.0;
                 }
             }
             return res;
@@ -68,7 +67,8 @@ namespace Circuit
             Matrix<double> matrix_Z = Matrix.Build.Diagonal(_id2Arc.Count, _id2Arc.Count);
             foreach (var arc in _id2Arc.Values)
             {
-                matrix_Z[GetArcIndexById(arc.Id), GetArcIndexById(arc.Id)] = arc.Value.R;
+                int arcIdx = GetArcIndexById(arc.Id);
+                matrix_Z[arcIdx, arcIdx] = arc.Value.R;
             }
             return matrix_Z;
         }
@@ -101,10 +101,14 @@ namespace Circuit
             //所有基本回路
             foreach (var loop in basicLoops)
             {
-                //所有支路
-                foreach (var branch in _id2Arc.Values)
+                // 连支关联值固定为1
+                matrix_B[loop.Id, GetArcIndexById(loop.Link.Id)] = 1;
+
+                // 遍历该基本回路经过的树支，直接填入关联值
+                for (int i = 0; i < loop.Arcs.Count; i++)
                 {
-                    matrix_B[loop.Id, GetArcIndexById(branch.Id)] = loop.GetRelatedValue(branch);
+                    var branch = loop.Arcs[i];
+                    matrix_B[loop.Id, GetArcIndexById(branch.Id)] = loop.IsRelated[i] ? 1 : -1;
                 }
             }
             return matrix_B;
@@ -171,10 +175,11 @@ namespace Circuit
         /// <returns></returns>
         private List<ArcNode<Branch>> GetLinks(List<ArcNode<Branch>> branchs)
         {
-            List<ArcNode<Branch>> res = new List<ArcNode<Branch>>();
+            HashSet<ArcNode<Branch>> branchSet = new HashSet<ArcNode<Branch>>(branchs);
+            List<ArcNode<Branch>> res = new List<ArcNode<Branch>>(_id2Arc.Count - branchs.Count);
             foreach (ArcNode<Branch> branch in _id2Arc.Values)
             {
-                if (!branchs.Contains(branch))
+                if (!branchSet.Contains(branch))
                     res.Add(branch);
             }
             return res;
@@ -191,7 +196,7 @@ namespace Circuit
             //边对应的关联值
             isCorrelated = new List<bool>(route.Count - 1);
             bool temp = false;
-            List<ArcNode<Branch>> res = new List<ArcNode<Branch>>();
+            List<ArcNode<Branch>> res = new List<ArcNode<Branch>>(route.Count - 1);
             //从第一个点遍历到倒数第二个点
             for (int i = 0; i < route.Count - 1; i++)
             {
@@ -213,20 +218,25 @@ namespace Circuit
         /// <returns></returns>
         private ArcNode<Branch> GetEdge(int vexID1, int vexID2, out bool isCorrelated)
         {
-            foreach (var arc in _id2Arc.Values)
+            // 直接通过十字链表邻接点查找，避免全图扫描
+            if (_id2Vex.TryGetValue(vexID1, out var vex1))
             {
-                //当成出边或者入边看看找得到不
-                if (arc.TailVexId == vexID1 && arc.HeadVexId == vexID2)
+                for (var arc = vex1.FirstOut; arc != null; arc = arc.NextTLink)
                 {
-                    isCorrelated = true;
-                    return arc;
+                    if (arc.HeadVexId == vexID2)
+                    {
+                        isCorrelated = true;
+                        return arc;
+                    }
                 }
-                else if (arc.TailVexId == vexID2 && arc.HeadVexId == vexID1)
+                for (var arc = vex1.FirstIn; arc != null; arc = arc.NextHLink)
                 {
-                    isCorrelated = false;
-                    return arc;
+                    if (arc.TailVexId == vexID2)
+                    {
+                        isCorrelated = false;
+                        return arc;
+                    }
                 }
-
             }
             isCorrelated = false;
             return null;
