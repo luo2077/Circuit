@@ -37,31 +37,6 @@
 在代码中构造电路类，插入所有支路，包括支路的已知属性（电阻、电动势）：
 ![image](https://github.com/luo2077/Circuit/blob/main/img/main.png)
 
-```csharp
-using Circuit;
-
-// 1. 实例化电路
-Circuit c = new Circuit();
-
-// 2. 添加支路元件 (节点编号, 节点编号, 元件属性)
-// 添加 12V 电池（内阻 3Ω）
-c.Add(0, 2, new Branch() { R = 3, E = -12, Name = "i1" });
-// 添加普通电阻 3Ω
-c.Add(0, 2, new Branch() { R = 3, Name = "i2" });
-// 添加电阻 2Ω
-c.Add(1, 2, new Branch() { R = 2, Name = "i3" });
-// 添加 8V 电池（内阻 2Ω）
-c.Add(2, 1, new Branch() { R = 2, E = 8, Name = "i4" });
-// 添加电阻 1.5Ω
-c.Add(0, 1, new Branch() { R = 1.5, Name = "i5" });
-
-// 3. 求解电路
-c.Solve();
-
-// 4. 打印结果
-c.Print();
-```
-
 运行程序，在控制台即可查看求解结果：
 ![image](https://github.com/luo2077/Circuit/blob/main/img/output.png)
 
