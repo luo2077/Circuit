@@ -105,11 +105,7 @@ namespace Circuit
         public void Solve()
         {
             if (_arcs.Count == 0) return;
-            var res = GetCDiagrams(GetSubConArcs());
-            for (int i = 0; i < res.Count; i++)
-            {
-                res[i].SolveCircuit();
-            }
+            FastSolver.Solve(_arcs);
         }
 
         //打印
